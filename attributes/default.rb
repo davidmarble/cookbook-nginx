@@ -29,7 +29,7 @@ when "debian","ubuntu"
   default[:nginx][:log_dir]    = "/var/log/nginx"
   default[:nginx][:user]       = "www-data"
   default[:nginx][:binary]     = "/usr/sbin/nginx"
-  default[:nginx][:init_style] = "runit"
+  default[:nginx][:init_style] = "init"
 else
   default[:nginx][:dir]        = "/etc/nginx"
   default[:nginx][:log_dir]    = "/var/log/nginx"
