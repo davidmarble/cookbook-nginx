@@ -40,6 +40,17 @@ The following attributes are set at the 'normal' node level via the `nginx::sour
 * `install_path` - for nginx::source, sets the --prefix installation.
 * `src_binary` - for nginx::source, sets the binary location.
 * `configure_flags` - for nginx::source, an array of flags to use for compilation.
+* `modules` - for nginx::source, supports custom module compilation. Currently 
+only supports tcp_proxy.
+* `config_cookbook` - for nginx::source, if defined, sets the cookbook where 
+templates for nginx.conf and custom sites are found. For example, if this is 
+set to "example", nginx::source expects to find the cookbook "example" with a 
+templates/<default>/nginx/nginx.conf.erb file.
+* `sites` - for nginx::source, supports an array of custom site configurations. 
+For each string in the array, the recipe expects to find 
+templates/<default>/sites-available/#{site}.conf.erb unless `config_cookbook` 
+is defined, in which case it will expect 
+#{node[:nginx][:config_cookbook]}/templates/<default>/nginx/sites-available/#{site}.conf.erb
 
 Usage
 =====
@@ -63,6 +74,9 @@ Author:: Adam Jacob (<adam@opscode.com>)
 Author:: AJ Christensen (<aj@opscode.com>)
 
 Copyright:: 2008-2011, Opscode, Inc
+
+Edited:: David Marble (<davidmarble@gmail.com>)
+* `modules`, `config_cookbook`, `sites`
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
