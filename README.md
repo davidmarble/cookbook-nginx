@@ -50,7 +50,7 @@ templates/<default>/nginx/nginx.conf.erb file.
 For each string in the array, the recipe expects to find 
 templates/<default>/sites-available/#{site}.conf.erb unless `config_cookbook` 
 is defined, in which case it will expect 
-#{node[:nginx][:config_cookbook]}/templates/<default>/nginx/sites-available/#{site}.conf.erb
+#{node[:nginx][:config_cookbook]}/templates/<default>/etc/nginx/sites-available/#{site}.conf.erb
 
 Usage
 =====

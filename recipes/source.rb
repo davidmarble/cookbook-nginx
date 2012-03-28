@@ -166,7 +166,7 @@ when "bluepill"
 else
     node.set[:nginx][:daemon_disable] = false
     #install init script based on platform
-    case platform
+    case node['platform']
     when "centos","redhat","fedora"
         template "/etc/init.d/nginx" do
             source "nginx.init.redhat.erb"
@@ -175,6 +175,12 @@ else
             mode "0755"
         end
     when "ubuntu","debian"
+        template "/etc/init.d/nginx" do
+            source "nginx.init.debian.erb"
+            owner "root"
+            group "root"
+            mode "0755"
+        end
     else
         template "/etc/init.d/nginx" do
             source "nginx.init.erb"
@@ -185,12 +191,12 @@ else
     end
 
     #install sysconfig file (not really needed but standard)
-    template "/etc/sysconfig/nginx" do
-        source "nginx.sysconfig.erb"
-        owner "root"
-        group "root"
-        mode "0644"
-    end
+    # template "/etc/sysconfig/nginx" do
+        # source "nginx.sysconfig.erb"
+        # owner "root"
+        # group "root"
+        # mode "0644"
+    # end
 
     #register service
     service "nginx" do
@@ -219,7 +225,7 @@ end
 
 template "nginx.conf" do
     path "#{node[:nginx][:dir]}/nginx.conf"
-    source node[:nginx].attribute?("config_cookbook") ? "nginx/nginx.conf.erb" : "nginx.conf.erb"
+    source node[:nginx].attribute?("config_cookbook") ? "etc/nginx/nginx.conf.erb" : "nginx.conf.erb"
     owner "root"
     group "root"
     mode "0644"
@@ -246,7 +252,7 @@ end
 if node[:nginx].attribute?("sites")
     node[:nginx][:sites].each do |site|
         template "/etc/nginx/sites-enabled/#{site}.conf" do
-            source node[:nginx].attribute?("config_cookbook") ? "nginx/sites-available/#{site}.conf.erb" : "sites-available/#{site}.conf.erb"
+            source node[:nginx].attribute?("config_cookbook") ? "etc/nginx/sites-available/#{site}.conf.erb" : "sites-available/#{site}.conf.erb"
             owner "root"
             group "root"
             mode "0640"
