@@ -71,13 +71,13 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=<%= node[:nginx][:src_binary] %>
 
-PS=$(basename $nginx)
+PS=$(basename $DAEMON)
 PIDNAME="$PS"                           #lets you do $PS-slave
 PIDFILE=<%= node[:nginx][:pid] -%>      #pid file
 
 DESCRIPTION="Nginx Server..."
 
-RUNAS=<%= node[:nginx][:user] -%>       #user to run as
+RUNAS=root                              #user to run as
 
 SCRIPT_OK=0                             #ala error codes
 SCRIPT_ERROR=1                          #ala error codes
@@ -108,8 +108,8 @@ fi
 
 setFilePerms(){
 
-        if [ -f $$PIDFILE ]; then
-                chmod 400 $$PIDFILE
+        if [ -f $PIDFILE ]; then
+                chmod 400 $PIDFILE
         fi
 }
 
@@ -191,8 +191,8 @@ removePIDFile(){
         fi
     else
         #Do default removal
-        if [ -f $$PIDFILE ]; then
-            rm -f $$PIDFILE
+        if [ -f $PIDFILE ]; then
+            rm -f $PIDFILE
         fi
     fi
 }
@@ -207,7 +207,7 @@ start() {
     if [ "${isAlive}" -eq $TRUE ]; then
         log_end_msg $SCRIPT_ERROR
     else
-        start-stop-daemon --start --quiet --chuid $RUNAS --pidfile $$PIDFILE --exec $DAEMON \
+        start-stop-daemon --start --quiet --chuid $RUNAS --pidfile $PIDFILE --exec $DAEMON \
         -- -c $NGINX_CONF_FILE
         setFilePerms
         log_end_msg $SCRIPT_OK
@@ -222,9 +222,9 @@ stop() {
 
     if [ "${isAlive}" -eq $TRUE ]; then
     
-        start-stop-daemon --stop --quiet --pidfile $$PIDFILE
+        start-stop-daemon --stop --quiet --pidfile $PIDFILE
 
-        wait_for_pid 'removed' $$PIDFILE
+        wait_for_pid 'removed' $PIDFILE
 
         if [ -n "$try" ] ; then
             log_end_msg $SCRIPT_ERROR
@@ -258,15 +258,15 @@ quietupgrade() {
     isRunning
     isAlive=$?
     if [ "${isAlive}" -eq $TRUE ]; then
-        kill -USR2 `cat $$PIDFILE`
-        kill -WINCH `cat $$PIDFILE.oldbin`
+        kill -USR2 `cat $PIDFILE`
+        kill -WINCH `cat $PIDFILE.oldbin`
         
         isRunning
         isAlive=$?
         if [ "${isAlive}" -eq $TRUE ]; then
-            kill -QUIT `cat $$PIDFILE.oldbin`
-            wait_for_pid 'removed' $$PIDFILE.oldbin
-                        removePIDFile $$PIDFILE.oldbin
+            kill -QUIT `cat $PIDFILE.oldbin`
+            wait_for_pid 'removed' $PIDFILE.oldbin
+                        removePIDFile $PIDFILE.oldbin
 
             log_end_msg $SCRIPT_OK
         else
@@ -274,12 +274,12 @@ quietupgrade() {
             
             log_daemon_msg "ERROR! Reverting back to original $DESCRIPTION"
 
-            kill -HUP `cat $$PIDFILE`
-            kill -TERM `cat $$PIDFILE.oldbin`
-            kill -QUIT `cat $$PIDFILE.oldbin`
+            kill -HUP `cat $PIDFILE`
+            kill -TERM `cat $PIDFILE.oldbin`
+            kill -QUIT `cat $PIDFILE.oldbin`
 
-            wait_for_pid 'removed' $$PIDFILE.oldbin
-            removePIDFile $$PIDFILE.oldbin
+            wait_for_pid 'removed' $PIDFILE.oldbin
+            removePIDFile $PIDFILE.oldbin
 
             log_end_msg $SCRIPT_ok
         fi
@@ -293,12 +293,12 @@ terminate() {
         
     PIDS=`pidof $PS` || true
 
-    [ -e $$PIDFILE ] && PIDS2=`cat $$PIDFILE`
+    [ -e $PIDFILE ] && PIDS2=`cat $PIDFILE`
 
     for i in $PIDS; do
         if [ "$i" = "$PIDS2" ]; then
             kill $i
-            wait_for_pid 'removed' $$PIDFILE
+            wait_for_pid 'removed' $PIDFILE
             removePIDFile
         fi
     done
@@ -315,7 +315,7 @@ destroy() {
 pidof_daemon() {
     PIDS=`pidof $PS` || true
 
-    [ -e $$PIDFILE ] && PIDS2=`cat $$PIDFILE`
+    [ -e $PIDFILE ] && PIDS2=`cat $PIDFILE`
 
     for i in $PIDS; do
         if [ "$i" = "$PIDS2" ]; then
