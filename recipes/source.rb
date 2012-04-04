@@ -201,7 +201,7 @@ else
     #register service
     service "nginx" do
         supports :status => true, :restart => true, :reload => true
-        subscribes :reload, resources(:bash => "compile_nginx_source")
+        subscribes :restart, resources(:bash => "compile_nginx_source")
         action :enable
     end
 end
