@@ -205,7 +205,9 @@ start() {
     isAlive=$?
     
     if [ "${isAlive}" -eq $TRUE ]; then
-        log_end_msg $SCRIPT_ERROR
+        reload
+        log_end_msg $SCRIPT_OK
+        #log_end_msg $SCRIPT_ERROR
     else
         start-stop-daemon --start --quiet --chuid $RUNAS --pidfile $PIDFILE --exec $DAEMON \
         -- -c $NGINX_CONF_FILE
@@ -234,7 +236,8 @@ stop() {
         fi
 
     else
-        log_end_msg $SCRIPT_ERROR
+        log_end_msg $SCRIPT_OK
+        #log_end_msg $SCRIPT_ERROR
     fi
 }
 
@@ -248,7 +251,9 @@ reload() {
         `killall -HUP $PS` #to be safe
         log_end_msg $SCRIPT_OK
     else
-        log_end_msg $SCRIPT_ERROR
+        start
+        log_end_msg $SCRIPT_OK
+        #log_end_msg $SCRIPT_ERROR
     fi
 }
 
@@ -281,7 +286,7 @@ quietupgrade() {
             wait_for_pid 'removed' $PIDFILE.oldbin
             removePIDFile $PIDFILE.oldbin
 
-            log_end_msg $SCRIPT_ok
+            log_end_msg $SCRIPT_OK
         fi
     else
         log_end_msg $SCRIPT_ERROR

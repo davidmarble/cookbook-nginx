@@ -69,18 +69,22 @@ node.set[:nginx][:configure_flags] = [
 
 remote_file "#{Chef::Config[:file_cache_path]}/nginx-#{nginx_version}.tar.gz" do
     source src_url
+    mode "0644"
     action :create_if_missing
 end
 
 bash "extract_nginx_source" do
+    user "root"
     cwd Chef::Config[:file_cache_path]
     code <<-EOH
         tar zxf nginx-#{nginx_version}.tar.gz
+        chown -R root:root nginx-#{nginx_version}
     EOH
 end
 
 if node[:nginx][:modules].include?("tcp_proxy")
     bash "add_tcp_proxy_module" do
+        user "root"
         cwd Chef::Config[:file_cache_path]
         code <<-EOH
         if [[ -d "nginx_tcp_proxy_module" ]]; then
@@ -98,6 +102,7 @@ end
 configure_flags = node[:nginx][:configure_flags].join(" ")
 
 bash "compile_nginx_source" do
+    user "root"
     cwd Chef::Config[:file_cache_path]
     code <<-EOH
         cd nginx-#{nginx_version} && ./configure #{configure_flags}
